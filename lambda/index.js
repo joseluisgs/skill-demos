@@ -150,17 +150,24 @@ const DiasParaCumpleIntentHandler = {
             const diasCumple = proximoCumple.startOf('day').diff(hoy, 'days'); // El mismo dia devuleve 0
             
             // Preparamos los mensajes
-            if(diasCumple>1)
-                mensaje += handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: nombre, contador: diasCumple});
-            else
-                mensaje += handlerInput.t('DAYS_LEFT_MSG', {nombre: nombre, contador: diasCumple});
             
+            // Si quedan días para el cumple
+            if(diasCumple>1){
+                mensaje += handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: nombre, contador: diasCumple});
+            } else {
+                if (diasCumple===1) {
+                mensaje += handlerInput.t('DAYS_LEFT_MSG', {nombre: nombre, contador: diasCumple});
+                }
+            }
+            
+            // Le decimos la edad 
             if(edad>1) 
                 mensaje += handlerInput.t('WILL_TURN_MSG_plural', {contador: edad + 1});
             else
                 mensaje += handlerInput.t('WILL_TURN_MSG', {contador: edad + 1});
             
-            if (diasCumple === 0) { //¡Es nuestro cumpleaños!
+            // Si es nuestro cumpleaños
+            if (diasCumple===0) { //¡Es nuestro cumpleaños!
                 // Si edad es mayor que 1, plurar
                 if(edad>1) {
                     mensaje = handlerInput.t('GREET_MSG', {nombre: nombre});
@@ -253,7 +260,7 @@ const SessionEndedRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
     },
     handle(handlerInput) {
-        console.log(`~~~~ Session ended: ${JSON.stringify(handlerInput.requestEnvelope)}`);
+        console.log(`~~~~ Sesión Terminada: ${JSON.stringify(handlerInput.requestEnvelope)}`);
         // Any cleanup logic goes here.
         return handlerInput.responseBuilder.getResponse(); // notice we send an empty response
     }
@@ -287,7 +294,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         const speechText = handlerInput.t('ERROR_MSG');
-        console.log(`~~~~ Error handled: ${JSON.stringify(error)}`);
+        console.log(`~~~~ Error de Handled: ${JSON.stringify(error)}`);
 
         return handlerInput.responseBuilder
             .speak(speechText)
