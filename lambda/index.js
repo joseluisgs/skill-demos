@@ -2,9 +2,11 @@
 // LIBRERÍAS
 const Alexa = require('ask-sdk-core');
 const interceptors = require('./interceptors'); // Interceptores
-const util = require('./util'); // funciones de utilidad. Aquí está la persistencia ahora y se exporta como util. Mirad en = Alexa.SkillBuilders
+const util = require('./util'); // funciones de utilidad. Aquí está la persistencia, recordatorios,  ahora y se exporta como util. Mirad en = Alexa.SkillBuilders
 const moment = require('moment-timezone'); // Para manejar fechas
-const aux = require('./mis_funciones'); // Mis funciones
+const aux = require('./mis_funciones'); // Mis funciones y otras cosas usadas aqui: operaciones de fechas, crear recordatorio
+// Fichero de configuración de permisos 
+const configuracion = require('./configuracion');
 
 
 //LANZAMIENTO - INTENCION
@@ -36,12 +38,12 @@ const LaunchRequestHandler = {
         
         // Variable de mensaje
          // Si no hay sesión, damos la bienvenida, si existe le damos bienvenida de registrado
-        let mensaje = !sessionCounter ? handlerInput.t('WELCOME_MSG', {nombre: nombre}) : handlerInput.t('WELCOME_BACK_MSG', {nombre: nombre});
-        mensaje += handlerInput.t('MISSING_MSG');
+        let mensajeHablado = !sessionCounter ? handlerInput.t('WELCOME_MSG', {nombre: nombre}) : handlerInput.t('WELCOME_BACK_MSG', {nombre: nombre});
+        mensajeHablado += handlerInput.t('MISSING_MSG');
     
         return handlerInput.responseBuilder
-            .speak(mensaje)
-            .withSimpleCard("Cumpleaños",mensaje)
+            .speak(mensajeHablado)
+            .withSimpleCard("Cumpleaños",mensajeHablado)
             // usamos el encadenamiento de intenciones para activar el registro de cumpleaños en varios usos seguidos
             
             .addDelegateDirective({
@@ -71,7 +73,7 @@ const RegistrarCumpleIntentHandler = {
         
         
         // Creamos mensaje
-        let mensaje = handlerInput.t('REJECTED_MSG');
+        let mensajeHablado = handlerInput.t('REJECTED_MSG');
         // Si todo esta confirmado
         //if (intent.confirmationStatus === 'CONFIRMED') {
             //Tomamos los slots y los almacenamos en variables
@@ -103,7 +105,7 @@ const RegistrarCumpleIntentHandler = {
     }
 };
 
-// DIAs PARA CUMPLE -INTENT
+// DIAS PARA CUMPLE -INTENT
 const DiasParaCumpleIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -121,7 +123,7 @@ const DiasParaCumpleIntentHandler = {
         const nombre = sessionAttributes['nombre'] || ''; // Nombre
         let timezone = sessionAttributes['timezone'];
         
-        let mensaje = !sessionCounter ? handlerInput.t('WELCOME_MSG', {nombre: nombre}) : handlerInput.t('WELCOME_BACK_MSG',{nombre: nombre});
+        let mensajeHablado = !sessionCounter ? handlerInput.t('WELCOME_MSG', {nombre: nombre}) : handlerInput.t('WELCOME_BACK_MSG',{nombre: nombre});
         
         // Si existen
         if (dia && mes && anno) {
@@ -134,54 +136,55 @@ const DiasParaCumpleIntentHandler = {
             }
             
             timezone = timezone? timezone : 'Europe/Madrid'; // Fijamos la zona horaria
+            
+            // Obtenemos la estructura de información de los datos de cumpleaños
+            const datosCumple = aux.getDatosCumple(dia, mes, anno, timezone);
+            // Metemos algunas cosas en la sesión. Revisar en interceptor si las queremos guardar en BD
+            sessionAttributes['edad'] = datosCumple.edad;
+            sessionAttributes['diasParaCumple'] = datosCumple.diasParaCumple;
+            
+            
+            
             const hoy = moment().tz(timezone).startOf('day'); // Obtenemos la fechas
              // Calculamos cuando nacimos en base a la fecha registrada
             const naciste = moment(`${mes}/${dia}/${anno}`, "MM/DD/YYYY").tz(timezone).startOf('day');
             // Calculamos el proximo cumple
             const proximoCumple = moment(`${mes}/${dia}/${hoy.year()}`, "MM/DD/YYYY").tz(timezone).startOf('day');
             
-            // si ya ha pasado, le sumamos un año 
-            if (hoy.isAfter(proximoCumple)){
-                proximoCumple.add(1, 'years');
-            }
-            // Calculamos la edad en años
-            const edad = hoy.diff(naciste, 'years');
-            // Sacamos los dias para cumple
-            const diasCumple = proximoCumple.startOf('day').diff(hoy, 'days'); // El mismo dia devuleve 0
-            
             // Preparamos los mensajes
             
             // Si quedan días para el cumple
-            if(diasCumple>1){
-                mensaje += handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: nombre, contador: diasCumple});
+            if(datosCumple.diasParaCumple>1){
+                mensajeHablado += handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: nombre, contador: datosCumple.diasParaCumple});
             } else {
-                if (diasCumple===1) {
-                mensaje += handlerInput.t('DAYS_LEFT_MSG', {nombre: nombre, contador: diasCumple});
+                if (datosCumple.diasParaCumple===1) {
+                mensajeHablado += handlerInput.t('DAYS_LEFT_MSG', {nombre: nombre, contador: datosCumple.diasParaCumple});
                 }
             }
             
             // Le decimos la edad 
-            if(edad>1) 
-                mensaje += handlerInput.t('WILL_TURN_MSG_plural', {contador: edad + 1});
+            if(datosCumple.edad>1) 
+                mensajeHablado += handlerInput.t('WILL_TURN_MSG_plural', {contador: datosCumple.edad + 1});
             else
-                mensaje += handlerInput.t('WILL_TURN_MSG', {contador: edad + 1});
+                mensajeHablado += handlerInput.t('WILL_TURN_MSG', {contador: datosCumple.edad + 1});
             
             // Si es nuestro cumpleaños
-            if (diasCumple===0) { //¡Es nuestro cumpleaños!
+            if (datosCumple.diasParaCumple===0) { //¡Es nuestro cumpleaños!
                 // Si edad es mayor que 1, plurar
-                if(edad>1) {
-                    mensaje = handlerInput.t('GREET_MSG', {nombre: nombre});
-                    mensaje += handlerInput.t('NOW_TURN_MSG_plural', {contador: edad});
+                if(datosCumple.edad>1) {
+                    mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
+                    mensajeHablado += handlerInput.t('NOW_TURN_MSG_plural', {contador: datosCumple.edad});
                 }
                 else {
-                    mensaje = handlerInput.t('GREET_MSG', {nombre: nombre});
-                    mensaje += handlerInput.t('NOW_TURN_MSG', {contador: edad});
+                    mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
+                    mensajeHablado += handlerInput.t('NOW_TURN_MSG', {contador: datosCumple.edad});
                 }
             }
-            mensaje += handlerInput.t('POST_SAY_HELP_MSG');
-            
+            mensajeHablado += handlerInput.t('POST_SAY_HELP_MSG');
+        
+        // Si no tenemos los datos
         }else{
-            mensaje = handlerInput.t('MISSING_MSG');
+            mensajeHablado = handlerInput.t('MISSING_MSG');
             // llamamos a registrar cumpleaños usamos intercambiador de Intents
             handlerInput.responseBuilder.addDelegateDirective({
                 name: 'RegistrarCumpleIntentHandler',
@@ -190,8 +193,139 @@ const DiasParaCumpleIntentHandler = {
             });
         }
         return handlerInput.responseBuilder
-            .speak(mensaje)
-            .withSimpleCard("Cumpleaños", mensaje)
+            .speak(mensajeHablado)
+            .withSimpleCard("Cumpleaños", mensajeHablado)
+            .reprompt(handlerInput.t('REPROMPT_MSG'))
+            .getResponse();
+    }
+};
+
+// RECORDATORIO PARA CUMPLE -INTENT
+const RecordatorioCumpleIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'RecordatorioCumpleIntent';
+    },
+    async handle(handlerInput) {
+        const {attributesManager, serviceClientFactory, requestEnvelope} = handlerInput;
+        const sessionAttributes = attributesManager.getSessionAttributes();
+        const {intent} = requestEnvelope.request;
+
+        const dia = sessionAttributes['dia'];
+        const mesNombre = sessionAttributes['mesNombre'];
+        const mes = sessionAttributes['mesID'];
+        const anno = sessionAttributes['anno'];
+        const sessionCounter = sessionAttributes['sessionCounter']; // Contador de sesiones
+        const nombre = sessionAttributes['nombre'] || ''; // Nombre
+        let timezone = sessionAttributes['timezone'];
+        
+        const mensajeEntrada = Alexa.getSlotValue(requestEnvelope, 'mensaje');
+        
+        //timezone = timezone? timezone : 'Europe/Madrid'; // Fijamos la zona horaria si no existe
+        
+        // Si NO esta confirmado
+        if (intent.confirmationStatus !== 'CONFIRMED') {
+            return handlerInput.responseBuilder
+                .speak(handlerInput.t('CANCEL_MSG') + handlerInput.t('REPROMPT_MSG'))
+                .reprompt(handlerInput.t('REPROMPT_MSG'))
+                .getResponse();
+        }
+        
+        // Texto de salida 
+        let mensajeHablado = '';
+        
+        // Si tenemos los datos
+        if (dia && mes && anno){
+            if (!timezone){
+                //timezone = 'Europe/Madrid'; 
+                return handlerInput.responseBuilder
+                    .speak(handlerInput.t('NO_TIMEZONE_MSG'))
+                    .getResponse();
+            }
+
+            const datosCumple = aux.getDatosCumple(dia, mes, anno, timezone);
+
+            // Creamos el recordatorio usando la API Remiders
+            // Hay que darle permisos en Build -> Prmissions
+            // o saltara la excepción.
+            try {
+                // Para accedera los permisos
+                const {permissions} = requestEnvelope.context.System.user;
+                
+                if (!(permissions && permissions.consentToken))
+                    throw { statusCode: 401, message: 'No tienes permisos disponibles' }; // No tienes permisos o no has inicializado la API
+                
+                // Obtenemos el cliente para manejar recordatorios
+                const recordatorioServiceClient = serviceClientFactory.getReminderManagementServiceClient();
+               
+               // los recordatorios antiguis se conservan durante 3 días después de que 'recuerden' al cliente antes de ser eliminados
+                
+                const recordatorioList = await recordatorioServiceClient.getReminders();
+                console.log('Recordatorios actuales: ' + JSON.stringify(recordatorioList));
+                // Borramos recordatorio pasados si existen
+                const recordatorioAnterior = sessionAttributes['recordatorioID'];
+                
+                
+                if (recordatorioAnterior){
+                    try {
+                        if (recordatorioList.totalCount !== "0") {
+                            await recordatorioServiceClient.deleteReminder(recordatorioAnterior);
+                            delete sessionAttributes['recordatorioID'];
+                            console.log('Eliminado ID del recordatorio anterior: ' + recordatorioAnterior);
+                        }
+                    } catch (error) {
+                        // significa que el recordatorio no existe o que hubo un problema con la eliminación
+                        // de cualquier manera, podemos seguir adelante y crear el nuevo recordatorio
+                        console.log('Error al borrar ID de recordatorio anterior: ' + recordatorioAnterior + ' via ' + JSON.stringify(error));
+                    }
+                }
+                
+                // Creamos la estructura del recordatorio
+                const recordatorio = aux.crearRecordatorioCumple(
+                    datosCumple.diasParaCumple,
+                    timezone,
+                    Alexa.getLocale(requestEnvelope),
+                    mensajeEntrada);
+                    
+                // Creamos el recordatorio
+                const recordatorioResponse = await recordatorioServiceClient.createReminder(recordatorio); // la respuesta incluirá un "alertToken" que puede usar para consultar este recordatorio
+                // salvamos el ID del recordatorio en la sesion
+                sessionAttributes['recordatorioId'] = recordatorioResponse.alertToken;
+                console.log('Recordatorio creado con ID: ' + recordatorioResponse.alertToken);
+                // Textto de respuesta
+                mensajeHablado = handlerInput.t('REMINDER_CREATED_MSG', {nombre: nombre});
+                mensajeHablado += handlerInput.t('POST_REMINDER_HELP_MSG');
+            } catch (error) {
+                console.log(JSON.stringify(error));
+                switch (error.statusCode) {
+                    case 401: // el usuario debe habilitar los permisos para recordatorios, adjuntemos una tarjeta de permisos a la respuesta
+                        handlerInput.responseBuilder.withAskForPermissionsConsentCard(configuracion.REMINDERS_PERMISSION);
+                        mensajeHablado += handlerInput.t('MISSING_PERMISSION_MSG');
+                        break;
+                    case 403: // dispositivos como el simulador no admiten la gestión de recordatorios
+                        mensajeHablado += handlerInput.t('UNSUPPORTED_DEVICE_MSG');
+                        break;
+                    //case 405: METHOD_NOT_ALLOWED, please contact the Alexa team
+                    default:
+                        mensajeHablado += handlerInput.t('REMINDER_ERROR_MSG') + ' El error es: ' + error.message;
+                }
+               mensajeHablado += handlerInput.t('REPROMPT_MSG');
+            }
+            
+        // Si no tenemos los datos, dia mes y año
+        } else {
+            mensajeHablado += handlerInput.t('MISSING_MSG');
+            // llamamos a registrar cumpleaños usamos intercambiador de Intents
+            handlerInput.responseBuilder.addDelegateDirective({
+                name: 'RegisterBirthdayIntent',
+                confirmationStatus: 'NONE',
+                slots: {}
+            });
+        }
+        
+        // Volvemos a indicar la accion
+        return handlerInput.responseBuilder
+            .speak(mensajeHablado)
             .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
     }
@@ -312,6 +446,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         RegistrarCumpleIntentHandler,
         DiasParaCumpleIntentHandler,
+        RecordatorioCumpleIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
@@ -330,5 +465,5 @@ exports.handler = Alexa.SkillBuilders.custom()
         interceptors.SaveAttributesResponseInterceptor)
     .withPersistenceAdapter(util.getPersistenceAdapter()) // indicamos las persistencia
     .withApiClient(new Alexa.DefaultApiClient()) // indicamos que vamos a usar una API
-    //.withCustomUserAgent('sample/happy-birthday/mod5')
+    .withCustomUserAgent('sample/feliz-cumple/mod6')
     .lambda();

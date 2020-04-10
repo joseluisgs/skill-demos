@@ -19,14 +19,20 @@ module.exports = {
             NOW_TURN_MSG: '¡Hoy cumples {{contador}} año! ',
             NOW_TURN_MSG_plural: '¡Hoy cumples {{contador}} años! ',
             MISSING_MSG: '$t(DOUBT_SPEECHCON). Parece que aun no me has dicho tu fecha de cumpleaños. ',
-            POST_SAY_HELP_MSG: 'Si quieres cambiar la fecha puedes decir, registra mi cumpleaños. O sólo dime la fecha directamente. ¿Qué quieres hacer? ',
-            HELP_MSG: 'Puedo recordar tu cumpleaños si me dices una fecha. O decirte cuanto falta para que cumplas. ¿Qué quieres hacer? ',
+            POST_SAY_HELP_MSG: 'Si quieres cambiar la fecha puedes decir, registra mi cumpleaños. También puedes crear un recordatorio para cuando cumplas. ¿Qué quieres hacer? ',
+            HELP_MSG: 'Puedo recordar tu cumpleaños si me dices una fecha. O decirte cuanto falta para que cumplas. También puedes crear un recordatorio para que nunca olides tu cumpleaños. ¿Qué quieres hacer? ',
             REPROMPT_MSG: 'Si no sabes como continuar intenta pedir ayuda. Si quieres salir solo dí para. ¿Qué quieres hacer? ',
             GOODBYE_MSG: ['¡Hasta luego {{nombre}}! ', '¡Adiós {{nombre}}! ', '¡Hasta pronto {{nombre}}! ', '¡Nos vemos {{nombre}}! '],
             REFLECTOR_MSG: 'Acabas de activar {{intent}}',
             FALLBACK_MSG: 'Lo siento, no se nada sobre eso. Por favor inténtalo otra vez. ',
             ERROR_MSG: 'Lo siento, ha habido un problema. Por favor inténtalo otra vez. ',
-            NO_TIMEZONE_MSG: 'No he podido determinar tu zona horaria. Verifica la configuración de tu dispositivo, abre otraa vez la skill e inténtalo otra vez.'
+            NO_TIMEZONE_MSG: 'No he podido determinar tu zona horaria. Verifica la configuración de tu dispositivo, abre otraa vez la skill e inténtalo otra vez.',
+            REMINDER_CREATED_MSG: '{{nombre}} Tu recordatorio se ha creado con éxito.',
+            REMINDER_ERROR_MSG: 'Perdona, ha habido un error al crear el recordatorio. ',
+            UNSUPPORTED_DEVICE_MSG: 'Este dispositivo no soporta la operación que estás intentando realizar.',
+            CANCEL_MSG: 'Vale. Lo cancelamos.',
+            MISSING_PERMISSION_MSG: 'Parece que no has autorizado el envío de recordatorios. Te he enviado una tarjeta a la app Alexa para que lo habilites. ',
+            POST_REMINDER_HELP_MSG: 'Si quieres saber cuando se aactivará tu recordatorio puedes decir, ¿cuánto falta para mi cumpleaños?. ¿Qué quieres hacer ahora?'
         }
     }
 }

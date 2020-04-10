@@ -16,10 +16,6 @@
           "samples": []
         },
         {
-          "name": "AMAZON.NavigateHomeIntent",
-          "samples": []
-        },
-        {
           "name": "RegistrarCumpleIntent",
           "slots": [
             {
@@ -117,81 +113,213 @@
             "graba mi cumpleaños",
             "recuerda mi cumpleaños"
           ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "DiasParaCumpleIntent",
+          "slots": [],
+          "samples": [
+            "cuando cumplo años",
+            "cuando cumplo",
+            "cuanto falta",
+            "cuanto falta para mi cumpleaños",
+            "cuanto falta para mi cumple",
+            "cuanto queda",
+            "cuanto queda para mi cumpleaños",
+            "cuanto queda para mi cumple",
+            "tiempo restante para mi cumpleaños",
+            "tiempo restante para mi cumple",
+            "dame mi cumpleaños",
+            "dame mi cumple",
+            "mi cumpleaños",
+            "mi cumple",
+            "cumpleaños",
+            "cumple",
+            "cuando es mi cumpleaños",
+            "cuando es mi cumple",
+            "dime mi cumpleaños",
+            "dime mi cumple",
+            "dime cuando cumplo años",
+            "dime cuando cumplo",
+            "dime cuanto falta",
+            "dime cuanto falta para mi cumpleaños",
+            "dime cuanto falta para mi cumple",
+            "dime cuanto queda",
+            "dime cuanto queda para mi cumpleaños",
+            "dime cuanto queda para mi cumple",
+            "dime cuando es mi cumpleaños",
+            "dime cuando es mi cumple"
+          ]
+        },
+        {
+          "name": "RecordatorioCumpleIntent",
+          "slots": [
+            {
+              "name": "mensaje",
+              "type": "AMAZON.SearchQuery",
+              "samples": [
+                "mi recordatorio es {mensaje}",
+                "el mensaje es {mensaje}",
+                "{mensaje}"
+              ]
+            }
+          ],
+          "samples": [
+            "crear recordatorio",
+            "configura un recordatorio",
+            "pon un recordatorio",
+            "crea un recordatorio",
+            "recordatorio para mi cumpleaños",
+            "configura un recordatorio para mi cumpleaños",
+            "pon un recordatorio para mi cumpleaños",
+            "crea un recordatorio para mi cumpleaños",
+            "recordatorio para mi cumple",
+            "configura un recordatorio para mi cumple",
+            "pon un recordatorio para mi cumple",
+            "crea un recordatorio para mi cumple",
+            "recordatorio con el texto {mensaje}",
+            "configura un recordatorio con el texto {mensaje}",
+            "pon un recordatorio con el texto {mensaje}",
+            "crea un recordatorio con el texto {mensaje}",
+            "recordatorio con el mensaje {mensaje}",
+            "configura un recordatorio con el mensaje {mensaje}",
+            "pon un recordatorio con el mensaje {mensaje}",
+            "crea un recordatorio con el mensaje {mensaje}",
+            "recordatorio con texto {mensaje}",
+            "configura un recordatorio con texto {mensaje}",
+            "pon un recordatorio con texto {mensaje}",
+            "crea un recordatorio con texto {mensaje}",
+            "recordatorio con mensaje {mensaje}",
+            "configura un recordatorio con mensaje {mensaje}",
+            "pon un recordatorio con mensaje {mensaje}",
+            "crea un recordatorio con mensaje {mensaje}"
+          ]
         }
       ],
       "types": [
         {
           "values": [
             {
-              "id": "10",
-              "name": {
-                "value": "ocutubre"
-              }
-            },
-            {
               "id": "12",
               "name": {
-                "value": "diciembre"
+                "value": "diciembre",
+                "synonyms": [
+                  "duodécimo mes del año",
+                  "duodécimo"
+                ]
               }
             },
             {
               "id": "11",
               "name": {
-                "value": "noviembre"
+                "value": "noviembre",
+                "synonyms": [
+                  "undécimo mes del año",
+                  "undécimo"
+                ]
               }
             },
             {
-              "id": "9",
+              "id": "10",
               "name": {
-                "value": "septiembre"
+                "value": "octubre",
+                "synonyms": [
+                  "décimo mes del año",
+                  "décimo"
+                ]
               }
             },
             {
-              "id": "8",
+              "id": "09",
               "name": {
-                "value": "agosto"
+                "value": "septiembre",
+                "synonyms": [
+                  "noveno mes del año",
+                  "noveno"
+                ]
               }
             },
             {
-              "id": "7",
+              "id": "08",
               "name": {
-                "value": "julio"
+                "value": "agosto",
+                "synonyms": [
+                  "octavo mes del año",
+                  "octavo"
+                ]
               }
             },
             {
-              "id": "6",
+              "id": "07",
               "name": {
-                "value": "junio"
+                "value": "julio",
+                "synonyms": [
+                  "séptimo mes del año",
+                  "séptimo"
+                ]
               }
             },
             {
-              "id": "5",
+              "id": "06",
               "name": {
-                "value": "mayo"
+                "value": "junio",
+                "synonyms": [
+                  "sexto mes del año",
+                  "sexto"
+                ]
               }
             },
             {
-              "id": "4",
+              "id": "05",
               "name": {
-                "value": "abril"
+                "value": "mayo",
+                "synonyms": [
+                  "quinto mes del año",
+                  "quinto"
+                ]
               }
             },
             {
-              "id": "3",
+              "id": "04",
               "name": {
-                "value": "marzo"
+                "value": "abril",
+                "synonyms": [
+                  "cuarto mes del año",
+                  "cuarto"
+                ]
               }
             },
             {
-              "id": "2",
+              "id": "03",
               "name": {
-                "value": "febrero"
+                "value": "marzo",
+                "synonyms": [
+                  "tercer mes del año",
+                  "tercero"
+                ]
               }
             },
             {
-              "id": "1",
+              "id": "02",
               "name": {
-                "value": "enero"
+                "value": "febrero",
+                "synonyms": [
+                  "segundo mes del año",
+                  "segundo"
+                ]
+              }
+            },
+            {
+              "id": "01",
+              "name": {
+                "value": "enero",
+                "synonyms": [
+                  "primero",
+                  "primer mes del año"
+                ]
               }
             }
           ],
@@ -203,8 +331,10 @@
       "intents": [
         {
           "name": "RegistrarCumpleIntent",
-          "confirmationRequired": false,
-          "prompts": {},
+          "confirmationRequired": true,
+          "prompts": {
+            "confirmation": "Confirm.Intent.562993077507"
+          },
           "slots": [
             {
               "name": "dia",
@@ -212,18 +342,18 @@
               "elicitationRequired": true,
               "confirmationRequired": false,
               "prompts": {
-                "elicitation": "Elicit.Slot.801747796238.91610710291"
+                "elicitation": "Elicit.Slot.653974572406.1040382425372"
               },
               "validations": [
                 {
-                  "type": "isLessThanOrEqualTo",
-                  "prompt": "Slot.Validation.327862079353.86558220260.231316649058",
-                  "value": "31"
+                  "type": "isGreaterThanOrEqualTo",
+                  "prompt": "Slot.Validation.190694681136.1424851421300.1030431910159",
+                  "value": "1"
                 },
                 {
-                  "type": "isGreaterThanOrEqualTo",
-                  "prompt": "Slot.Validation.327862079353.86558220260.664204302957",
-                  "value": "1"
+                  "type": "isLessThanOrEqualTo",
+                  "prompt": "Slot.Validation.190694681136.1424851421300.837658517617",
+                  "value": "31"
                 }
               ]
             },
@@ -233,12 +363,12 @@
               "elicitationRequired": true,
               "confirmationRequired": false,
               "prompts": {
-                "elicitation": "Elicit.Slot.1252378110115.120327215659"
+                "elicitation": "Elicit.Slot.282358190483.487594834711"
               },
               "validations": [
                 {
                   "type": "hasEntityResolutionMatch",
-                  "prompt": "Slot.Validation.327862079353.893721925195.1529149721536"
+                  "prompt": "Slot.Validation.190694681136.463018349705.1461889218555"
                 }
               ]
             },
@@ -248,20 +378,38 @@
               "elicitationRequired": true,
               "confirmationRequired": false,
               "prompts": {
-                "elicitation": "Elicit.Slot.10337278524.1251002862949"
+                "elicitation": "Elicit.Slot.1253554922892.1358447173887"
               },
               "validations": [
                 {
                   "type": "isGreaterThan",
-                  "prompt": "Slot.Validation.327862079353.1293948682720.1519671411226",
+                  "prompt": "Slot.Validation.1253554922892.1358447173887.1026742417738",
                   "value": "1900"
                 },
                 {
-                  "type": "isLessThanOrEqualTo",
-                  "prompt": "Slot.Validation.327862079353.1293948682720.1394180227464",
-                  "value": "2020"
+                  "type": "isLessThan",
+                  "prompt": "Slot.Validation.1253554922892.1358447173887.176185058059",
+                  "value": "2018"
                 }
               ]
+            }
+          ]
+        },
+        {
+          "name": "RecordatorioCumpleIntent",
+          "confirmationRequired": true,
+          "prompts": {
+            "confirmation": "Confirm.Intent.1563814284178"
+          },
+          "slots": [
+            {
+              "name": "mensaje",
+              "type": "AMAZON.SearchQuery",
+              "elicitationRequired": true,
+              "confirmationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.337360238844.1191309658875"
+              }
             }
           ]
         }
@@ -270,118 +418,178 @@
     },
     "prompts": [
       {
-        "id": "Elicit.Slot.801747796238.91610710291",
+        "id": "Elicit.Slot.653974572406.1040382425372",
         "variations": [
           {
             "type": "PlainText",
-            "value": "vale. me has dicho que cumples en {mes} pero, ¿qué día?"
+            "value": "Vale. Me has dicho que cumples en {mes} . Pero, ¿qué día?"
           },
           {
             "type": "PlainText",
-            "value": "¿qué día cumples años?"
+            "value": "¿Qué día cumples años?"
           },
           {
             "type": "PlainText",
-            "value": "¿en qué día es tu cumpleaños?"
+            "value": "¿En qué día es tu cumpleaños?"
           },
           {
             "type": "PlainText",
-            "value": "dime, ¿en qué día del mes es tu cumpleaños?"
+            "value": "Dime, ¿en qué día del mes es tu cumpleaños"
           }
         ]
       },
       {
-        "id": "Elicit.Slot.1252378110115.120327215659",
+        "id": "Elicit.Slot.282358190483.487594834711",
         "variations": [
           {
             "type": "PlainText",
-            "value": "dime ahora el mes en que cumples años"
+            "value": "Dime ahora el mes en que cumples años"
           },
           {
             "type": "PlainText",
-            "value": "¿en qué mes cumples años?"
+            "value": "¿En qué mes cumples años?"
           },
           {
             "type": "PlainText",
-            "value": "¿en qué mes es tu cumpleaños?"
+            "value": "¿En qué mes es tu cumpleaños?"
           },
           {
             "type": "PlainText",
-            "value": "vale, cumples el día {dia} . Pero, ¿en qué mes?"
+            "value": "Vale, cumples el día {dia} . Pero, ¿en qué mes?"
           }
         ]
       },
       {
-        "id": "Elicit.Slot.10337278524.1251002862949",
+        "id": "Slot.Validation.190694681136.1424851421300.1030431910159",
         "variations": [
           {
             "type": "PlainText",
-            "value": "dime el año"
+            "value": "Por favor dime un día mayor o igual que uno"
+          }
+        ]
+      },
+      {
+        "id": "Slot.Validation.190694681136.1424851421300.837658517617",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Por favor dime un día menor o igual a treinta y uno"
+          }
+        ]
+      },
+      {
+        "id": "Slot.Validation.190694681136.463018349705.1461889218555",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Por favor dime un mes válido"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.1253554922892.1358447173887",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Eres de {mes} , ¿de qué año?"
           },
           {
             "type": "PlainText",
-            "value": "eres de {mes} , ¿de qué año?"
+            "value": "Vale. El {dia} de {dia} . Pero, ¿de qué año?"
           },
           {
             "type": "PlainText",
-            "value": "vale. El {dia} de {mes} . ¿de qué año?"
+            "value": "Ahora dime el año de tu nacimiento"
           },
           {
             "type": "PlainText",
-            "value": "ahora dime el año de tu nacimiento"
+            "value": "¿En qué año has nacido?"
+          }
+        ]
+      },
+      {
+        "id": "Slot.Validation.1253554922892.1358447173887.1026742417738",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "No creo que tengas tantos años. Inténtalo otra vez"
+          }
+        ]
+      },
+      {
+        "id": "Slot.Validation.1253554922892.1358447173887.176185058059",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "No creo que tengas tan pocos años. Inténtalo otra vez"
+          }
+        ]
+      },
+      {
+        "id": "Confirm.Intent.562993077507",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Entonces el {dia} de {mes} de {anno} . ¿Es correcto?"
           },
           {
             "type": "PlainText",
-            "value": "¿en qué año has nacido?"
+            "value": "Estás seguro que quieres registrar {dia} de {mes} de {anno} ?"
           }
         ]
       },
       {
-        "id": "Slot.Validation.327862079353.86558220260.231316649058",
+        "id": "Elicit.Slot.337360238844.1191309658875",
         "variations": [
           {
             "type": "PlainText",
-            "value": "Dime un día entre uno y treinta y uno"
+            "value": "¿Cual es el mensaje para el recordatorio?"
+          },
+          {
+            "type": "PlainText",
+            "value": "Genial. Ahora dime el mensaje a leer cuando se active el recordatorio"
+          },
+          {
+            "type": "PlainText",
+            "value": "Vale. Dime por favor el mensaje para el recordatorio"
           }
         ]
       },
       {
-        "id": "Slot.Validation.327862079353.86558220260.664204302957",
+        "id": "Confirm.Slot.337360238844.1191309658875",
         "variations": [
           {
             "type": "PlainText",
-            "value": "Dime un día entre uno y treinta y uno"
+            "value": "El mensaje. {mensaje} . Será enviado cuando cumplas años. ¿Estás de acurrdo?"
+          },
+          {
+            "type": "PlainText",
+            "value": "El mensaje. {mensaje} . Será enviado cuando cumplas años. ¿Lo confirmas?"
+          },
+          {
+            "type": "PlainText",
+            "value": "Te enviaré el siguiente mensaje cuando cumplas años. {mensaje} . ¿De acuerdo?"
           }
         ]
       },
       {
-        "id": "Slot.Validation.327862079353.893721925195.1529149721536",
+        "id": "Confirm.Intent.1563814284178",
         "variations": [
           {
             "type": "PlainText",
-            "value": "Por favor, dime un mes válido"
-          }
-        ]
-      },
-      {
-        "id": "Slot.Validation.327862079353.1293948682720.1519671411226",
-        "variations": [
+            "value": "¿Estás seguro que quieres enviar el mensaje {mensaje} ?"
+          },
           {
             "type": "PlainText",
-            "value": "No creo que seas tan viejo. Inténtalo otra vez"
-          }
-        ]
-      },
-      {
-        "id": "Slot.Validation.327862079353.1293948682720.1394180227464",
-        "variations": [
+            "value": "El mensaje. {mensaje} .Será enviado cuando cumplas años. ¿Lo confirmas?"
+          },
           {
             "type": "PlainText",
-            "value": "No creo que seas tan joven. Inténtalo otra vez"
+            "value": "Te enviaré el siguiente mensaje cuando cumplas años. {mensaje} . ¿De acuerdo?"
           }
         ]
       }
     ]
   },
-  "version": "3"
+  "version": "6"
 }

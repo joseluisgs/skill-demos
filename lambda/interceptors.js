@@ -5,8 +5,10 @@ const Alexa = require('ask-sdk-core');
 const i18n = require('i18next');
 // Fichero de mnesajes de texto localizados
 const languageStrings = require('./localisation');
+// Fichero de configuración de permisos 
+const configuracion = require('./configuracion');
 
-// Atributos a salvar. Código mas legible. Limitamos solo los que queremos salvar.
+// Atributos a salvar. Código mas legible. Limitamos solo los que queremos salvar.Si no quitar
 const PERSISTENT_ATTRIBUTES_NAMES = ['dia', 'mesID', 'mesNombre', 'anno', 'sessionCounter'];
 
 //PERMISOS por ejemplo para acceder al nombre: de lectura
@@ -83,7 +85,7 @@ const SaveAttributesResponseInterceptor = {
             sessionAttributes['sessionCounter'] = sessionAttributes['sessionCounter'] ? sessionAttributes['sessionCounter'] + 1 : 1;
             // limitamos salvar atributos solo a los que queremos
             for (var key in sessionAttributes) {
-                if (!PERSISTENT_ATTRIBUTES_NAMES.includes(key))
+                if (!configuracion.PERSISTENT_ATTRIBUTES_NAMES.includes(key))
                     delete sessionAttributes[key];
             }
             console.log('Salvando a almacenamiento persistente:' + JSON.stringify(sessionAttributes));
@@ -119,7 +121,7 @@ const LoadNameRequestInterceptor = {
                 console.log(JSON.stringify(error));
                 if (error.statusCode === 401 || error.statusCode === 403) {
                     // el usuario necesita habilitar los permisos para el nombre dado, agreguemos una tarjeta de permisos a la respuesta.
-                    handlerInput.responseBuilder.withAskForPermissionsConsentCard(GIVEN_NAME_PERMISSION);
+                    handlerInput.responseBuilder.withAskForPermissionsConsentCard(configuracion.GIVEN_NAME_PERMISSION);
                 }
             }
         }
