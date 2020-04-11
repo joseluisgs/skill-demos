@@ -8,11 +8,6 @@ const languageStrings = require('./localisation');
 // Fichero de configuración de permisos 
 const configuracion = require('./configuracion');
 
-// Atributos a salvar. Código mas legible. Limitamos solo los que queremos salvar.Si no quitar
-const PERSISTENT_ATTRIBUTES_NAMES = ['dia', 'mesID', 'mesNombre', 'anno', 'sessionCounter'];
-
-//PERMISOS por ejemplo para acceder al nombre: de lectura
-const GIVEN_NAME_PERMISSION = ['alexa::profile:given_name:read'];
 
 // Request interceptor registrará todas las solicitudes entrantes en esta lambda
 

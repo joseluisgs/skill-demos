@@ -7,5 +7,8 @@ module.exports = {
     GIVEN_NAME_PERMISSION: ['alexa::profile:given_name:read'],
     
     // Permisos para recordatorios
-    REMINDERS_PERMISSION: ['alexa::alerts:reminders:skill:readwrite']
+    REMINDERS_PERMISSION: ['alexa::alerts:reminders:skill:readwrite'],
+    
+    // número máximo de cumpleaños a consultar de famosos por el servicio
+    MAX_CUMPLES: 5
 }

@@ -30,7 +30,7 @@ module.exports = {
             });
         } else {
             // Si es una base de datos externa
-            // IMPORTANT: don't forget to give DynamoDB access to the role you're using to run this lambda (via IAM policy)
+            // IMPORTANTE: no olvides dar acceso a DynamoDB al rol que está utilizando para ejecutar este lambda (a través de la política de IAM)
             const {DynamoDbPersistenceAdapter} = require('ask-sdk-dynamodb-persistence-adapter');
             return new DynamoDbPersistenceAdapter({
                 tableName: tableName || 'feliz_cumple',
@@ -60,5 +60,26 @@ module.exports = {
                 status: 'ENABLED'
             }
         }
+    }, 
+    
+    // FUNCION PARA CREAR UNA DIRECTIVA DE SERVICIO
+    callDirectiveService(handlerInput, msg) {
+        // llama a Alexa, Directiva de servicio
+        const {requestEnvelope} = handlerInput;
+        const directiveServiceClient = handlerInput.serviceClientFactory.getDirectiveServiceClient();
+        const requestId = requestEnvelope.request.requestId;
+        const {apiEndpoint, apiAccessToken} = requestEnvelope.context.System;
+        // Construye la respuesta progresiva
+        const directive = {
+            header: {
+                requestId
+            },
+            directive:{
+                type: 'VoicePlayer.Speak',
+                speech: msg
+            }
+        };
+        // envia la directiva de servicio
+        return directiveServiceClient.enqueue(directive, apiEndpoint, apiAccessToken);
     }
 }
