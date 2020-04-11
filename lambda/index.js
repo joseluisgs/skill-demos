@@ -1,12 +1,12 @@
-
 // LIBRERÍAS
 const Alexa = require('ask-sdk-core');
+// Fichero de configuración de permisos y variables globales
+const configuracion = require('./configuracion');
 const interceptors = require('./interceptors'); // Interceptores
 const util = require('./util'); // funciones de utilidad. Aquí está la persistencia, recordatorios,  ahora y se exporta como util. Mirad en = Alexa.SkillBuilders
 const moment = require('moment-timezone'); // Para manejar fechas
-const aux = require('./mis_funciones'); // Mis funciones y otras cosas usadas aqui: operaciones de fechas, crear recordatorio
-// Fichero de configuración de permisos 
-const configuracion = require('./configuracion');
+const func = require('./funciones'); // Mis funciones y otras cosas usadas aqui: operaciones de fechas, crear recordatorio
+
 
 
 //LANZAMIENTO - INTENCION
@@ -82,7 +82,7 @@ const RegistrarCumpleIntentHandler = {
             //const mes = Alexa.getSlotValue(requestEnvelope, 'mes');
             // Vamos a almacenar también el id del mes y su nombre, por eso hemos cambiado lo de antes
             const mesNombre = Alexa.getSlotValue(requestEnvelope, 'mes');
-            const mesID = aux.getIDMes(mesNombre); // Sacamos el mes, podíamos hacerlo como const mesSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id; //MM
+            const mesID = func.getIDMes(mesNombre); // Sacamos el mes, podíamos hacerlo como const mesSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id; //MM
             
             // Si existen
             if (dia && anno && mesNombre && mesID) {
@@ -139,7 +139,7 @@ const DiasParaCumpleIntentHandler = {
             timezone = timezone? timezone : 'Europe/Madrid'; // Fijamos la zona horaria
             
             // Obtenemos la estructura de información de los datos de cumpleaños
-            const datosCumple = aux.getDatosCumple(dia, mes, anno, timezone);
+            const datosCumple = func.getDatosCumple(dia, mes, anno, timezone);
             // Metemos algunas cosas en la sesión. Revisar en interceptor si las queremos guardar en BD
             sessionAttributes['edad'] = datosCumple.edad;
             sessionAttributes['diasParaCumple'] = datosCumple.diasParaCumple;
@@ -182,12 +182,12 @@ const DiasParaCumpleIntentHandler = {
                 }
                 
                 // Ahora vamos a concatenarle los cumpleaños importantes de hoy
-                const fechaActual = aux.getFechaActual(timezone);
+                const fechaActual = func.getFechaActual(timezone);
                 // obtenemos los cumpleaños acediendo a nuestra API, ver CUMPLEAÑOS DE FAMOSOS -INTENT
-                const respuesta = await aux.getCumpleFamosos(fechaActual.dia, fechaActual.mes, configuracion.MAX_CUMPLES);
+                const respuesta = await func.getCumpleFamosos(fechaActual.dia, fechaActual.mes, configuracion.MAX_CUMPLES);
                 console.log(JSON.stringify(respuesta));
                 // convertimos a texto hablado
-                const textoRespuesta = aux.convertirCumplesResponse(handlerInput, respuesta, false);
+                const textoRespuesta = func.convertirCumplesResponse(handlerInput, respuesta, false);
                 mensajeHablado += textoRespuesta;
                 
                 
@@ -255,7 +255,7 @@ const RecordatorioCumpleIntentHandler = {
                     .getResponse();
             }
 
-            const datosCumple = aux.getDatosCumple(dia, mes, anno, timezone);
+            const datosCumple = func.getDatosCumple(dia, mes, anno, timezone);
 
             // Creamos el recordatorio usando la API Remiders
             // Hay que darle permisos en Build -> Prmissions
@@ -293,7 +293,7 @@ const RecordatorioCumpleIntentHandler = {
                 }
                 
                 // Creamos la estructura del recordatorio
-                const recordatorio = aux.crearRecordatorioCumple(
+                const recordatorio = func.crearRecordatorioCumple(
                     datosCumple.diasParaCumple,
                     timezone,
                     Alexa.getLocale(requestEnvelope),
@@ -311,7 +311,7 @@ const RecordatorioCumpleIntentHandler = {
                 console.log(JSON.stringify(error));
                 switch (error.statusCode) {
                     case 401: // el usuario debe habilitar los permisos para recordatorios, adjuntemos una tarjeta de permisos a la respuesta
-                        handlerInput.responseBuilder.withAskForPermissionsConsentCard(configuracion.REMINDERS_PERMISSION);
+                        handlerInput.responseBuilder.withAskForPermissionsConsentCard(configuracion.PERMISO_RECORDATORIO);
                         mensajeHablado += handlerInput.t('MISSING_PERMISSION_MSG');
                         break;
                     case 403: // dispositivos como el simulador no admiten la gestión de recordatorios
@@ -374,12 +374,12 @@ const FamososCumpleIntentHandler = {
             console.log("Error de respuesta progresiva : " + error);
         }
         // Obtenemos la fecha 
-        const fechaActual = aux.getFechaActual(timezone);
+        const fechaActual = func.getFechaActual(timezone);
         // ahora buscaremos cumpleaños de celebridades desde una API externa
-        const respuesta = await aux.getCumpleFamosos(fechaActual.dia, fechaActual.mes, configuracion.MAX_CUMPLES);
+        const respuesta = await func.getCumpleFamosos(fechaActual.dia, fechaActual.mes, configuracion.MAX_CUMPLES);
         console.log(JSON.stringify(respuesta));
         // convertimos la respuesta API a texto que Alexa puede leer
-        const textoRespuesta = aux.convertirCumplesResponse(handlerInput, respuesta, true, timezone);
+        const textoRespuesta = func.convertirCumplesResponse(handlerInput, respuesta, true, timezone);
         let mensajeHablado = handlerInput.t('API_ERROR_MSG');
         if (textoRespuesta) {
             mensajeHablado = textoRespuesta;

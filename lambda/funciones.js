@@ -1,5 +1,6 @@
-// MIS FUNCIONES AUXILIARES
+// MIS FUNCIONES AXIALIARES O PARTE DE LA FUNCINALIDAD O LÓGICA DE LA SKILL
 
+// LIBRERÍAS A USAR
 const moment = require('moment-timezone'); // manejo de fechas con TimeZone
 const util = require('./util'); // Utilidades
 const axios = require('axios'); // servicios HTTP y REST 

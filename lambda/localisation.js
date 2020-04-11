@@ -1,4 +1,4 @@
-// CONSTANTES
+// CONSTANTES DE LOCALIZACION
 //Creamos un objeto de cadenas de lenguaje que contiene todas nuestras cadenas.
 //Las claves para cada cadena se referenciarán en nuestro código, p. handlerInput.t ('WELCOME_MSG')
 
