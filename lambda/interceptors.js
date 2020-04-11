@@ -1,11 +1,10 @@
 // MODULO DE INTERCEPTORES
 const Alexa = require('ask-sdk-core');
-
 // i18n librería para usar el interceptor de localización para poder tener los mensajes en distintos idiomas.
 const i18n = require('i18next');
 // Fichero de mnesajes de texto localizados
 const languageStrings = require('./localisation');
-// Fichero de configuración de permisos 
+// Fichero de configuración de permisos y variables globales
 const configuracion = require('./configuracion');
 
 
@@ -80,7 +79,7 @@ const SaveAttributesResponseInterceptor = {
             sessionAttributes['sessionCounter'] = sessionAttributes['sessionCounter'] ? sessionAttributes['sessionCounter'] + 1 : 1;
             // limitamos salvar atributos solo a los que queremos
             for (var key in sessionAttributes) {
-                if (!configuracion.PERSISTENT_ATTRIBUTES_NAMES.includes(key))
+                if (!configuracion.ATRIBUTOS_PERSISTENTES.includes(key))
                     delete sessionAttributes[key];
             }
             console.log('Salvando a almacenamiento persistente:' + JSON.stringify(sessionAttributes));
@@ -116,7 +115,7 @@ const LoadNameRequestInterceptor = {
                 console.log(JSON.stringify(error));
                 if (error.statusCode === 401 || error.statusCode === 403) {
                     // el usuario necesita habilitar los permisos para el nombre dado, agreguemos una tarjeta de permisos a la respuesta.
-                    handlerInput.responseBuilder.withAskForPermissionsConsentCard(configuracion.GIVEN_NAME_PERMISSION);
+                    handlerInput.responseBuilder.withAskForPermissionsConsentCard(configuracion.PERMISO_NOMBRE_USUARIO);
                 }
             }
         }
