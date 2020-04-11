@@ -19,8 +19,8 @@ module.exports = {
             NOW_TURN_MSG: '¡Hoy cumples {{contador}} año! ',
             NOW_TURN_MSG_plural: '¡Hoy cumples {{contador}} años! ',
             MISSING_MSG: '$t(DOUBT_SPEECHCON). Parece que aun no me has dicho tu fecha de cumpleaños. ',
-            POST_SAY_HELP_MSG: 'Si quieres cambiar la fecha puedes decir, registra mi cumpleaños. También puedes crear un recordatorio para cuando cumplas. ¿Qué quieres hacer? ',
-            HELP_MSG: 'Puedo recordar tu cumpleaños si me dices una fecha. O decirte cuanto falta para que cumplas. También puedes crear un recordatorio para que nunca olides tu cumpleaños. ¿Qué quieres hacer? ',
+            POST_SAY_HELP_MSG: 'Si quieres cambiar la fecha puedes decir, registra mi cumpleaños. También puedes crear un recordatorio para cuando cumplas o conocer los cumpleaños de hoy. ¿Qué quieres hacer? ',
+            HELP_MSG: 'Puedo recordar tu cumpleaños si me dices una fecha. Decirte cuanto falta para que cumplas. Crear un recordatorio para tu cumpleaños y decirte quién cumplle años hoy. ¿Qué quieres hacer? ',
             REPROMPT_MSG: 'Si no sabes como continuar intenta pedir ayuda. Si quieres salir solo dí para. ¿Qué quieres hacer? ',
             GOODBYE_MSG: ['¡Hasta luego {{nombre}}! ', '¡Adiós {{nombre}}! ', '¡Hasta pronto {{nombre}}! ', '¡Nos vemos {{nombre}}! '],
             REFLECTOR_MSG: 'Acabas de activar {{intent}}',
@@ -32,7 +32,15 @@ module.exports = {
             UNSUPPORTED_DEVICE_MSG: 'Este dispositivo no soporta la operación que estás intentando realizar.',
             CANCEL_MSG: 'Vale. Lo cancelamos.',
             MISSING_PERMISSION_MSG: 'Parece que no has autorizado el envío de recordatorios. Te he enviado una tarjeta a la app Alexa para que lo habilites. ',
-            POST_REMINDER_HELP_MSG: 'Si quieres saber cuando se aactivará tu recordatorio puedes decir, ¿cuánto falta para mi cumpleaños?. ¿Qué quieres hacer ahora?'
+            POST_REMINDER_HELP_MSG: 'Si quieres saber cuando se aactivará tu recordatorio puedes decir, ¿cuánto falta para mi cumpleaños?. ¿Qué quieres hacer ahora?',
+            API_ERROR_MSG: 'Lo siento, ha habido un problema de acceso a la API externa. Por favor inténtalo otra vez. ',
+            PROGRESSIVE_MSG: 'Déjame ver quién cumple hoy {{nombre}}. ',
+            CONJUNCTION_MSG: ' y ',
+            TURNING_YO_MSG: ' cumple {{contador}} año',
+            TURNING_YO_MSG_plural: ' cumple {{contador}} años',
+            CELEBRITY_BIRTHDAYS_MSG: 'En esta fecha cumplen años: ',
+            ALSO_TODAY_MSG: 'También hoy cumplen: ',
+            POST_CELEBRITIES_HELP_MSG: 'Quizá ahora puedes preguntar por cuántos días quedan hasta tu cumpleaños. Y recuerda que también puedes configurar un recordatorio para no olvidarlo. ¿Qué quieres hacer ahora? '
         }
     }
 }

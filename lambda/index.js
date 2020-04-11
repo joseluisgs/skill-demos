@@ -111,7 +111,8 @@ const DiasParaCumpleIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'DiasParaCumpleIntent';
     },
-    handle(handlerInput) {
+    // Le ponemos asíncrono porque vamos a indicar los cumpleaños de la gente
+    async handle(handlerInput) {
         // Recuperamos la sesion
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         // Nos traemos los atributos
@@ -179,6 +180,17 @@ const DiasParaCumpleIntentHandler = {
                     mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
                     mensajeHablado += handlerInput.t('NOW_TURN_MSG', {contador: datosCumple.edad});
                 }
+                
+                // Ahora vamos a concatenarle los cumpleaños importantes de hoy
+                const fechaActual = aux.getFechaActual(timezone);
+                // obtenemos los cumpleaños acediendo a nuestra API, ver CUMPLEAÑOS DE FAMOSOS -INTENT
+                const respuesta = await aux.getCumpleFamosos(fechaActual.dia, fechaActual.mes, configuracion.MAX_CUMPLES);
+                console.log(JSON.stringify(respuesta));
+                // convertimos a texto hablado
+                const textoRespuesta = aux.convertirCumplesResponse(handlerInput, respuesta, false);
+                mensajeHablado += textoRespuesta;
+                
+                
             }
             mensajeHablado += handlerInput.t('POST_SAY_HELP_MSG');
         
@@ -331,6 +343,56 @@ const RecordatorioCumpleIntentHandler = {
     }
 };
 
+// CUMPLEAÑOS DE FAMOSOS -INTENT
+const FamososCumpleIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'FamososCumpleIntent';
+    },
+    // Como vamos a acceder a una API externa lo hacemos async 
+    async handle(handlerInput) {
+        // Obtenemos los atributos de sesión que necesitamos
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes()
+        const nombre = sessionAttributes['nombre'] || '';
+        let timezone = sessionAttributes['timezone'];
+        
+        // Obtenemos el TimeZone
+        if (!timezone){
+           //timezone = 'Europe/Rome'; 
+            return handlerInput.responseBuilder
+                .speak(handlerInput.t('NO_TIMEZONE_MSG'))
+                .getResponse();
+        }
+        
+        // Vamos con el servicio
+        // Lo primero es constrir la respuesta progresiva
+        try {
+            // llame al servicio de respuesta progresiva
+            await util.callDirectiveService(handlerInput, handlerInput.t('PROGRESSIVE_MSG', {nombre: nombre}));
+        } catch (error) {
+            // si falla podemos continuar, pero el usuario esperará sin una respuesta progresiva
+            console.log("Error de respuesta progresiva : " + error);
+        }
+        // Obtenemos la fecha 
+        const fechaActual = aux.getFechaActual(timezone);
+        // ahora buscaremos cumpleaños de celebridades desde una API externa
+        const respuesta = await aux.getCumpleFamosos(fechaActual.dia, fechaActual.mes, configuracion.MAX_CUMPLES);
+        console.log(JSON.stringify(respuesta));
+        // convertimos la respuesta API a texto que Alexa puede leer
+        const textoRespuesta = aux.convertirCumplesResponse(handlerInput, respuesta, true, timezone);
+        let mensajeHablado = handlerInput.t('API_ERROR_MSG');
+        if (textoRespuesta) {
+            mensajeHablado = textoRespuesta;
+        }
+        mensajeHablado += handlerInput.t('POST_CELEBRITIES_HELP_MSG');
+
+        return handlerInput.responseBuilder
+            .speak(mensajeHablado)
+            .reprompt(handlerInput.t('REPROMPT_MSG'))
+            .getResponse();
+    }
+};
+
 // AYUDA - INTENT
 const HelpIntentHandler = {
     canHandle(handlerInput) {
@@ -447,6 +509,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         RegistrarCumpleIntentHandler,
         DiasParaCumpleIntentHandler,
         RecordatorioCumpleIntentHandler,
+        FamososCumpleIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
@@ -465,5 +528,5 @@ exports.handler = Alexa.SkillBuilders.custom()
         interceptors.SaveAttributesResponseInterceptor)
     .withPersistenceAdapter(util.getPersistenceAdapter()) // indicamos las persistencia
     .withApiClient(new Alexa.DefaultApiClient()) // indicamos que vamos a usar una API
-    .withCustomUserAgent('sample/feliz-cumple/mod6')
+    .withCustomUserAgent('sample/feliz-cumple/mod7')
     .lambda();

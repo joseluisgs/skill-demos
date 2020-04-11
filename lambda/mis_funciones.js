@@ -1,7 +1,8 @@
 // MIS FUNCIONES AUXILIARES
 
 const moment = require('moment-timezone'); // manejo de fechas con TimeZone
-const util = require('./util');
+const util = require('./util'); // Utilidades
+const axios = require('axios'); // servicios HTTP y REST 
 
 
 module.exports = {
@@ -43,5 +44,92 @@ module.exports = {
         console.log('Recordatorio programado: ' +  disparadorMomento.format('YYYY-MM-DDTHH:mm:00.000'));
         // Devuelvo y creo la creación de recordatorio
         return util.createReminder(momento, disparadorMomento, timezone, locale, mensaje); // Está en utils
+    }, 
+    
+    // Obtiene la fechaActual en la estructura dia y mes
+     getFechaActual(timezone) {
+        const hoy = moment().tz(timezone).startOf('day');
+
+        return {
+            dia: hoy.date(),
+            mes: hoy.month() + 1,
+            anno: hoy.year()
+        }
+    },
+    
+    // Obtiene cumpleaños famosos usando un servicio web, en este caso de la wikipedia usando de lenguaje de consulta sparql
+    getCumpleFamosos(dia, mes, limite){
+        const endpoint = 'https://query.wikidata.org/sparql';
+        // Lista de actores con fotos y fecha de nacimiento para un día y mes determinados
+        const consultaSparql =
+        `SELECT DISTINCT ?human ?humanLabel ?picture ?date_of_birth ?place_of_birthLabel WHERE {
+        ?human wdt:P31 wd:Q5;
+            wdt:P106 wd:Q33999;
+            wdt:P18 ?picture.
+        FILTER((DATATYPE(?date_of_birth)) = xsd:dateTime)
+        FILTER((MONTH(?date_of_birth)) = ${mes})
+        FILTER((DAY(?date_of_birth)) = ${dia})
+        FILTER (bound(?place_of_birth))
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+        OPTIONAL { ?human wdt:P569 ?date_of_birth. }
+        OPTIONAL { ?human wdt:P19 ?place_of_birth. }
+        }
+        LIMIT ${limite}`;
+        const url = endpoint + '?query=' + encodeURIComponent(consultaSparql);
+        console.log(url); // por si queremos verla en el explorador
+
+        var config = {
+            timeout: 6500, // timeout api 8 seg timeout, se puede cambiar en  axios.defaults.timeout
+            headers: {'Accept': 'application/sparql-results+json'} // Queremos JSON
+        };
+        
+        // aqui hacemos la función asíncrona para obtener la respuesta de JSON
+        async function getJsonResponse(url, config){
+            const res = await axios.get(url, config);
+            return res.data;
+        }
+        
+        // Devolvermos la respuesta 
+        return getJsonResponse(url, config).then((result) => {
+            return result;
+        }).catch((error) => {
+            return null;
+        });
+    },
+    
+    // Convertimos las respuesta de cumples en texto hablado
+    convertirCumplesResponse(handlerInput, response, conEdad, timezone){
+        let textoSalida = '';
+        // Si la llamada API falla, simplemente no agregamos los cumpleaños de hoy a la respuesta
+        if (!response || !response.results || !response.results.bindings || !Object.keys(response.results.bindings).length > 0)
+            return textoSalida;
+        
+        const resultados = response.results.bindings;
+        textoSalida += handlerInput.t('ALSO_TODAY_MSG');
+        
+        // Recorremos los resultados y lo almacenamos en el objeto persona 
+        resultados.forEach((persona, index) => {
+            console.log(persona);
+            textoSalida += persona.humanLabel.value;
+            // si tiene la edad de nacimiento...
+            if (conEdad && timezone && persona.date_of_birth.value) {
+                const edad = module.exports.convertirFechaNacimientoEnEdad(persona, timezone);
+                 textoSalida += handlerInput.t('TURNING_YO_MSG', {contador: edad});
+            }
+            // Juntamos más
+            if (index === Object.keys(resultados).length - 2)
+                textoSalida += handlerInput.t('CONJUNCTION_MSG');
+            else
+               textoSalida += '. ';
+        });
+
+        return textoSalida;
+    },
+    
+    // Convierte fechas de cumpleaños en años que tiene
+    convertirFechaNacimientoEnEdad(persona, timezone) {
+        const hoy = moment().tz(timezone).startOf('day');
+        const fechaNacimiento = moment(persona.date_of_birth.value).tz(timezone).startOf('day');
+        return hoy.diff(fechaNacimiento, 'years');
     }
 }
