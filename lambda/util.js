@@ -81,5 +81,11 @@ module.exports = {
         };
         // envia la directiva de servicio
         return directiveServiceClient.enqueue(directive, apiEndpoint, apiAccessToken);
+    }, 
+    
+    // FUNCION PARA INDICAR SI EL DISPOSITIVO SOPORTA APL
+    supportsAPL(handlerInput) {
+        const {supportedInterfaces} = handlerInput.requestEnvelope.context.System.device;
+        return !!supportedInterfaces['Alexa.Presentation.APL'];
     }
 }

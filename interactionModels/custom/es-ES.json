@@ -442,8 +442,8 @@
               "elicitationRequired": true,
               "confirmationRequired": true,
               "prompts": {
-                "confirmation": "Confirm.Slot.705255679801.1547662204502",
-                "elicitation": "Elicit.Slot.337360238844.1191309658875"
+                "elicitation": "Elicit.Slot.337360238844.1191309658875",
+                "confirmation": "Confirm.Slot.705255679801.1547662204502"
               }
             }
           ]
@@ -635,5 +635,5 @@
       }
     ]
   },
-  "version": "8"
+  "version": "9"
 }

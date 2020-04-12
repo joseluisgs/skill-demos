@@ -42,12 +42,12 @@ const LaunchRequestHandler = {
     
         return handlerInput.responseBuilder
             .speak(mensajeHablado)
-            .withSimpleCard("Cumpleaños",mensajeHablado)
-            // usamos el encadenamiento de intenciones para activar el registro de cumpleaños en varios usos seguidos
+            //.withSimpleCard("Cumpleaños",mensajeHablado)
+            // usamos el encadenamiento de intenciones para activar el registro de cumpleaños en varios usos seguidos. Delegamos el control de dialogo a otro intent
             .addDelegateDirective({
-                name: 'RegistrarCumpleIntent',
-                confirmationStatus: 'NONE',
-                slots: {}
+                name: 'RegistrarCumpleIntent', // Intent que lo hará
+                confirmationStatus: 'NONE', // Si necesitamos confirmar
+                slots: {} // Slots
             })
             
             .getResponse();
@@ -192,19 +192,31 @@ const DiasParaCumpleIntentHandler = {
             }
             mensajeHablado += handlerInput.t('POST_SAY_HELP_MSG');
         
-        // Si no tenemos los datos
-        }else{
-            mensajeHablado = handlerInput.t('MISSING_MSG');
-            // llamamos a registrar cumpleaños usamos intercambiador de Intents
+            // Agregar tarjeta de inicio a la respuesta
+            // Si estás usando una habilidad alojada de Alexa, las imágenes a continuación caducarán
+            // y no se pudo mostrar en la tarjeta. Debes reemplazarlos con imágenes estáticas
+            
+            let textoPantalla =  (datosCumple.diasParaCumple===1) ? handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}) : handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: '', contador: sessionAttributes['diasParaCumple']})
+            handlerInput.responseBuilder.withStandardCard(
+                // Encabezado
+                handlerInput.t('LAUNCH_HEADER_MSG'), 
+                // Si es mi cumple, muestro  la edad, si no los días que quedan
+                textoPantalla,//(datosCumple.diasParaCumple===0) ? sessionAttributes['edad'] + 'años' : handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}),
+                // Si es mi cumple de fondo pongo una tarta, si no el fondo normal
+                (datosCumple.diasParaCumple===0) ? util.getS3PreSignedUrl('Media/cake_480x480.png') : util.getS3PreSignedUrl('Media/papers_480x480.png'));
+        } else {
+            mensajeHablado += handlerInput.t('MISSING_MSG');
+            // unsamos delegación de intenciones para lanzar otro intent
             handlerInput.responseBuilder.addDelegateDirective({
-                name: 'RegistrarCumpleIntentHandler',
+                name: 'RegistrarCumpleIntent',
                 confirmationStatus: 'NONE',
                 slots: {}
             });
         }
+        
+        // Devolvemos
         return handlerInput.responseBuilder
             .speak(mensajeHablado)
-            .withSimpleCard("Cumpleaños", mensajeHablado)
             .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
     }
@@ -254,7 +266,7 @@ const RecordatorioCumpleIntentHandler = {
             }
 
             const datosCumple = func.getDatosCumple(dia, mes, anno, timezone);
-
+            let errorFlag = false;
             // Creamos el recordatorio usando la API Remiders
             // Hay que darle permisos en Build -> Prmissions
             // o saltara la excepción.
@@ -307,6 +319,7 @@ const RecordatorioCumpleIntentHandler = {
                 mensajeHablado += handlerInput.t('POST_REMINDER_HELP_MSG');
             } catch (error) {
                 console.log(JSON.stringify(error));
+                errorFlag = true;
                 switch (error.statusCode) {
                     case 401: // el usuario debe habilitar los permisos para recordatorios, adjuntemos una tarjeta de permisos a la respuesta
                         handlerInput.responseBuilder.withAskForPermissionsConsentCard(configuracion.PERMISO_RECORDATORIO);
@@ -322,18 +335,54 @@ const RecordatorioCumpleIntentHandler = {
                mensajeHablado += handlerInput.t('REPROMPT_MSG');
             }
             
-        // Si no tenemos los datos, dia mes y año
+       // prorizamos la directiva APL para que nos saque la imagen si no hay errores
+       // Con esto sacamos una que hemos creado
+            if (util.supportsAPL(handlerInput) && !errorFlag) {
+                const {Viewport} = handlerInput.requestEnvelope.context;
+                const resolution = Viewport.pixelWidth + 'x' + Viewport.pixelHeight;
+                handlerInput.responseBuilder.addDirective({
+                    type: 'Alexa.Presentation.APL.RenderDocument',
+                    version: '1.1',
+                    // Preparamos la pantalla a lanzar
+                    document: configuracion.APL.launchDoc,
+                    datasources: {
+                        launchData: {
+                            type: 'object',
+                            // Las propiedades que usa, las cambiamos dinamicamente
+                            properties: {
+                                headerTitle: handlerInput.t('LAUNCH_HEADER_MSG'),
+                                mainText: handlerInput.t('REMINDER_CREATED_MSG', {nombre: nombre}),
+                                hintString: handlerInput.t('LAUNCH_HINT_MSG'),
+                                logoImage: Viewport.pixelWidth > 480 ? util.getS3PreSignedUrl('Media/full_icon_512.png') : util.getS3PreSignedUrl('Media/full_icon_108.png'),
+                                backgroundImage: util.getS3PreSignedUrl('Media/straws_'+resolution+'.png'),
+                                backgroundOpacity: "0.5"
+                            },
+                            transformers: [{
+                                inputPath: 'hintString',
+                                transformer: 'textToHint',
+                            }]
+                        }
+                    }
+                });
+            }
+
+            // Agregar tarjeta de inicio a la respuesta de tipo standard
+            // Si estás usando una habilidad alojada de Alexa, las imágenes a continuación caducarán
+            // y no se pudo mostrar en la tarjeta. Debes reemplazarlos con imágenes estáticas
+            handlerInput.responseBuilder.withStandardCard(
+                handlerInput.t('LAUNCH_HEADER_MSG'),
+                handlerInput.t('REMINDER_CREATED_MSG', {nombre: nombre}),
+                util.getS3PreSignedUrl('Media/straws_480x480.png'));
         } else {
             mensajeHablado += handlerInput.t('MISSING_MSG');
-            // llamamos a registrar cumpleaños usamos intercambiador de Intents
+           // Usamos delegación de servicios para volver a un intent
             handlerInput.responseBuilder.addDelegateDirective({
-                name: 'RegisterBirthdayIntent',
+                name: 'RegistrarCumpleIntent',
                 confirmationStatus: 'NONE',
                 slots: {}
             });
         }
-        
-        // Volvemos a indicar la accion
+
         return handlerInput.responseBuilder
             .speak(mensajeHablado)
             .reprompt(handlerInput.t('REPROMPT_MSG'))
@@ -383,6 +432,42 @@ const FamososCumpleIntentHandler = {
             mensajeHablado = textoRespuesta;
         }
         mensajeHablado += handlerInput.t('POST_CELEBRITIES_HELP_MSG');
+
+       // Add APL directiva para responder
+        if (util.supportsAPL(handlerInput) && textoRespuesta) { // si no hay texto de respuesta es que no hay nada que decir
+            const {Viewport} = handlerInput.requestEnvelope.context;
+            const resolution = Viewport.pixelWidth + 'x' + Viewport.pixelHeight;
+            handlerInput.responseBuilder.addDirective({
+                type: 'Alexa.Presentation.APL.RenderDocument',
+                version: '1.1',
+                document: configuracion.APL.launchDoc,
+                datasources: {
+                    launchData: {
+                        type: 'object',
+                        properties: {
+                            headerTitle: handlerInput.t('LAUNCH_HEADER_MSG'),
+                            mainText: func.convertirCumplesResponse(handlerInput, textoRespuesta, false).split(": ")[1],
+                            hintString: handlerInput.t('LAUNCH_HINT_MSG'),
+                            logoImage: Viewport.pixelWidth > 480 ? util.getS3PreSignedUrl('Media/full_icon_512.png') : util.getS3PreSignedUrl('Media/full_icon_108.png'),
+                            backgroundImage: util.getS3PreSignedUrl('Media/lights_'+resolution+'.png'),
+                            backgroundOpacity: "0.5"
+                        },
+                        transformers: [{
+                            inputPath: 'hintString',
+                            transformer: 'textToHint',
+                        }]
+                    }
+                }
+            });
+
+             // Agregar tarjeta de inicio a la respuesta
+            // Si estás usando una habilidad alojada de Alexa, las imágenes a continuación caducarán
+            // y no se pudo mostrar en la tarjeta. Debes reemplazarlos con imágenes estáticas
+            handlerInput.responseBuilder.withStandardCard(
+                handlerInput.t('LAUNCH_HEADER_MSG'),
+                mensajeHablado,
+                util.getS3PreSignedUrl('Media/lights_480x480.png'));
+        }
 
         return handlerInput.responseBuilder
             .speak(mensajeHablado)
@@ -496,4 +581,18 @@ const ErrorHandler = {
             .getResponse();
     }
 };
+
+module.exports = {
+    LaunchRequestHandler,
+    RegistrarCumpleIntentHandler,
+    DiasParaCumpleIntentHandler,
+    RecordatorioCumpleIntentHandler,
+    FamososCumpleIntentHandler,
+    HelpIntentHandler,
+    CancelAndStopIntentHandler,
+    FallbackIntentHandler,
+    SessionEndedRequestHandler,
+    IntentReflectorHandler,
+    ErrorHandler
+}
 

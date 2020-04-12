@@ -9,5 +9,10 @@ module.exports = {
     PERMISO_RECORDATORIO: ['alexa::alerts:reminders:skill:readwrite'],
     
     // número máximo de cumpleaños a consultar de famosos por el servicio
-    MAX_CUMPLES: 5
+    MAX_CUMPLES: 5, 
+    
+    // APL Interfaces, uno por cada fichero de recursos
+    APL: {
+        launchDoc: require('./recursos/launchScreen.json')
+    }
 }
