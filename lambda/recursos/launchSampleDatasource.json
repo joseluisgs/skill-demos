@@ -1,0 +1,12 @@
+{
+    "launchData": {
+        "properties": {
+            "headerTitle": "¡Feliz Cumpleaños!",
+            "mainText": "¿Cuándo es tu cumpleaños?",
+            "hintString": "Alexa, registra mi cumpleaños",
+            "logoImage": "https://i.imgur.com/ZJJtcRT.png",
+            "backgroundImage": "https://i.imgur.com/Y21B9Y5.jpg",
+            "backgroundOpacity": "0.5"
+        }
+    }
+}

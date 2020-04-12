@@ -5,15 +5,24 @@
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
-          "samples": []
+          "samples": [
+            "cancela",
+            "cancelar"
+          ]
         },
         {
           "name": "AMAZON.HelpIntent",
-          "samples": []
+          "samples": [
+            "que hacer",
+            "ayuda"
+          ]
         },
         {
           "name": "AMAZON.StopIntent",
-          "samples": []
+          "samples": [
+            "salir",
+            "parar"
+          ]
         },
         {
           "name": "RegistrarCumpleIntent",
@@ -442,8 +451,8 @@
               "elicitationRequired": true,
               "confirmationRequired": true,
               "prompts": {
-                "elicitation": "Elicit.Slot.337360238844.1191309658875",
-                "confirmation": "Confirm.Slot.705255679801.1547662204502"
+                "confirmation": "Confirm.Slot.705255679801.1547662204502",
+                "elicitation": "Elicit.Slot.337360238844.1191309658875"
               }
             }
           ]
@@ -635,5 +644,5 @@
       }
     ]
   },
-  "version": "9"
+  "version": "10"
 }

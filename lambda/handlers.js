@@ -23,26 +23,33 @@ const LaunchRequestHandler = {
         // Cargamos los atrinbutos de sesion 
         const dia = sessionAttributes['dia'];
         const mesNombre = sessionAttributes['mesNombre'];
+        const mes = sessionAttributes['mesID'];
         const anno = sessionAttributes['anno'];
         const nombre = sessionAttributes['nombre'] || '';
         const sessionCounter = sessionAttributes['sessionCounter']; // Contador de sesiones
-
+        
+        
+        // Variable de mensaje
+        // Si no hay sesión, damos la bienvenida, si existe le damos bienvenida de registrado
+        let mensajeHablado = !sessionCounter ? handlerInput.t('WELCOME_MSG', {nombre: nombre}) : handlerInput.t('WELCOME_BACK_MSG', {nombre: nombre});
+         
          // Si existen los mensajes, mostramos
         if(dia && mesNombre && anno) {
             // Si queremos que nos indique ya nuestro cumpleaños nada más arrancar
-             //mensaje = handlerInput.t('REGISTER_MSG', {nombre:nombre, dia: dia, mes: mesNombre, anno: anno});
+             //mensajeHablado += handlerInput.t('REGISTER_MSG', {nombre:nombre, dia: dia, mes: mesNombre, anno: anno});  // COMENTAR EN EXPERIMENTO
             // Si queremos que nos diga los dias para nuestro cumple o si es nuestro cumple
-            return DiasParaCumpleIntentHandler.handle(handlerInput);
+            
+            return DiasParaCumpleIntentHandler.handle(handlerInput);  // DESCOMENTAR EN EXPERIMENTO
+            
         }
         
-        // Variable de mensaje
-         // Si no hay sesión, damos la bienvenida, si existe le damos bienvenida de registrado
-        let mensajeHablado = !sessionCounter ? handlerInput.t('WELCOME_MSG', {nombre: nombre}) : handlerInput.t('WELCOME_BACK_MSG', {nombre: nombre});
-        mensajeHablado += handlerInput.t('MISSING_MSG');
-    
         return handlerInput.responseBuilder
             .speak(mensajeHablado)
-            //.withSimpleCard("Cumpleaños",mensajeHablado)
+            // Pantalla principal con un StandardCard.
+            .withStandardCard(
+                handlerInput.t('LAUNCH_HEADER_MSG'),
+                mensajeHablado,
+                util.getS3PreSignedUrl('Media/full_icon_512.png'))
             // usamos el encadenamiento de intenciones para activar el registro de cumpleaños en varios usos seguidos. Delegamos el control de dialogo a otro intent
             .addDelegateDirective({
                 name: 'RegistrarCumpleIntent', // Intent que lo hará
@@ -51,6 +58,7 @@ const LaunchRequestHandler = {
             })
             
             .getResponse();
+            
     }
 };
 
@@ -72,6 +80,7 @@ const RegistrarCumpleIntentHandler = {
         
         // Creamos mensaje
         let mensajeHablado = handlerInput.t('REJECTED_MSG');
+
         // Si todo esta confirmado
         //if (intent.confirmationStatus === 'CONFIRMED') {
             //Tomamos los slots y los almacenamos en variables
@@ -123,7 +132,7 @@ const DiasParaCumpleIntentHandler = {
         let timezone = sessionAttributes['timezone'];
         
         let mensajeHablado = !sessionCounter ? handlerInput.t('WELCOME_MSG', {nombre: nombre}) : handlerInput.t('WELCOME_BACK_MSG',{nombre: nombre});
-        
+        let textoPantalla='';
         // Si existen
         if (dia && mes && anno) {
             // Buscamos el timezone
@@ -167,17 +176,25 @@ const DiasParaCumpleIntentHandler = {
             else
                 mensajeHablado += handlerInput.t('WILL_TURN_MSG', {contador: datosCumple.edad + 1});
             
+            // PAsamos el texto a la pantalla...
+            textoPantalla = mensajeHablado;
+            
             // Si es nuestro cumpleaños
             if (datosCumple.diasParaCumple===0) { //¡Es nuestro cumpleaños!
+                textoPantalla = handlerInput.t('FELICITACION_MSG', {nombre: nombre});
                 // Si edad es mayor que 1, plurar
                 if(datosCumple.edad>1) {
                     mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
                     mensajeHablado += handlerInput.t('NOW_TURN_MSG_plural', {contador: datosCumple.edad});
+                    textoPantalla += handlerInput.t('NOW_TURN_MSG_plural', {contador: datosCumple.edad});
                 }
                 else {
                     mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
                     mensajeHablado += handlerInput.t('NOW_TURN_MSG', {contador: datosCumple.edad});
+                    textoPantalla += handlerInput.t('NOW_TURN_MSG_plural', {contador: datosCumple.edad});
                 }
+                
+
                 
                 // Ahora vamos a concatenarle los cumpleaños importantes de hoy
                 const fechaActual = func.getFechaActual(timezone);
@@ -190,21 +207,61 @@ const DiasParaCumpleIntentHandler = {
                 
                 
             }
+            
+            
             mensajeHablado += handlerInput.t('POST_SAY_HELP_MSG');
-        
+            
+
             // Agregar tarjeta de inicio a la respuesta
             // Si estás usando una habilidad alojada de Alexa, las imágenes a continuación caducarán
             // y no se pudo mostrar en la tarjeta. Debes reemplazarlos con imágenes estáticas
             
-            let textoPantalla =  (datosCumple.diasParaCumple===1) ? handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}) : handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: '', contador: sessionAttributes['diasParaCumple']})
-            handlerInput.responseBuilder.withStandardCard(
+            //let textoPantalla =  (datosCumple.diasParaCumple===1) ? handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}) : handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: '', contador: sessionAttributes['diasParaCumple']});
+            
+            // Si es mi cumple de fondo pongo una tarta, si no el fondo normal
+            //    (datosCumple.diasParaCumple===0) ? util.getS3PreSignedUrl('Media/cake_480x480.png') : util.getS3PreSignedUrl('Media/papers_480x480.png'));
+            
+            
+            // experimento
+           
+        
+            if(util.supportsAPL(handlerInput)) {
+                const {Viewport} = handlerInput.requestEnvelope.context;
+                const resolution = Viewport.pixelWidth + 'x' + Viewport.pixelHeight;
+                handlerInput.responseBuilder.addDirective({
+                        type: 'Alexa.Presentation.APL.RenderDocument',
+                        version: '1.1',
+                        document: configuracion.APL.launchDoc,
+                        datasources: {
+                            launchData: {
+                                type: 'object',
+                                properties: {
+                                    headerTitle: handlerInput.t('LAUNCH_HEADER_MSG'),
+                                    mainText: textoPantalla,
+                                    hintString: handlerInput.t('LAUNCH_HINT_MSG'),
+                                    logoImage: Viewport.pixelWidth > 480 ? util.getS3PreSignedUrl('Media/full_icon_512.png') : util.getS3PreSignedUrl('Media/full_icon_108.png'),
+                                    backgroundImage: util.getS3PreSignedUrl('Media/straws_'+resolution+'.png'),
+                                    backgroundOpacity: "0.5"
+                                },
+                                transformers: [{
+                                    inputPath: 'hintString',
+                                    transformer: 'textToHint',
+                                }]
+                            }
+                        }
+                    });
+            
+            }
+        }
+            
+            //handlerInput.responseBuilder.withStandardCard(
                 // Encabezado
-                handlerInput.t('LAUNCH_HEADER_MSG'), 
+            //    handlerInput.t('LAUNCH_HEADER_MSG'), 
                 // Si es mi cumple, muestro  la edad, si no los días que quedan
-                textoPantalla,//(datosCumple.diasParaCumple===0) ? sessionAttributes['edad'] + 'años' : handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}),
+            //    textoPantalla,//(datosCumple.diasParaCumple===0) ? sessionAttributes['edad'] + 'años' : handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}),
                 // Si es mi cumple de fondo pongo una tarta, si no el fondo normal
-                (datosCumple.diasParaCumple===0) ? util.getS3PreSignedUrl('Media/cake_480x480.png') : util.getS3PreSignedUrl('Media/papers_480x480.png'));
-        } else {
+            //    (datosCumple.diasParaCumple===0) ? util.getS3PreSignedUrl('Media/cake_480x480.png') : util.getS3PreSignedUrl('Media/papers_480x480.png'));
+        else {
             mensajeHablado += handlerInput.t('MISSING_MSG');
             // unsamos delegación de intenciones para lanzar otro intent
             handlerInput.responseBuilder.addDelegateDirective({
@@ -216,6 +273,7 @@ const DiasParaCumpleIntentHandler = {
         
         // Devolvemos
         return handlerInput.responseBuilder
+            //.withStandardCard('Cumpleaños',mensajeHablado, util.getS3PreSignedUrl('Media/papers_480x480.png'))
             .speak(mensajeHablado)
             .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
@@ -338,6 +396,7 @@ const RecordatorioCumpleIntentHandler = {
        // prorizamos la directiva APL para que nos saque la imagen si no hay errores
        // Con esto sacamos una que hemos creado
             if (util.supportsAPL(handlerInput) && !errorFlag) {
+                console.log("PASO: Entro en el IF");
                 const {Viewport} = handlerInput.requestEnvelope.context;
                 const resolution = Viewport.pixelWidth + 'x' + Viewport.pixelHeight;
                 handlerInput.responseBuilder.addDirective({
@@ -373,6 +432,8 @@ const RecordatorioCumpleIntentHandler = {
                 handlerInput.t('LAUNCH_HEADER_MSG'),
                 handlerInput.t('REMINDER_CREATED_MSG', {nombre: nombre}),
                 util.getS3PreSignedUrl('Media/straws_480x480.png'));
+        
+        // Si no tenemos los datos
         } else {
             mensajeHablado += handlerInput.t('MISSING_MSG');
            // Usamos delegación de servicios para volver a un intent
@@ -382,8 +443,10 @@ const RecordatorioCumpleIntentHandler = {
                 slots: {}
             });
         }
-
+        
+        // Reprompt
         return handlerInput.responseBuilder
+            .withStandardCard('Cumpleaños',mensajeHablado, util.getS3PreSignedUrl('Media/papers_480x480.png'))
             .speak(mensajeHablado)
             .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
@@ -446,7 +509,7 @@ const FamososCumpleIntentHandler = {
                         type: 'object',
                         properties: {
                             headerTitle: handlerInput.t('LAUNCH_HEADER_MSG'),
-                            mainText: func.convertirCumplesResponse(handlerInput, textoRespuesta, false).split(": ")[1],
+                            mainText: func.convertirCumplesResponse(handlerInput, respuesta, true, timezone).split(": ")[1],
                             hintString: handlerInput.t('LAUNCH_HINT_MSG'),
                             logoImage: Viewport.pixelWidth > 480 ? util.getS3PreSignedUrl('Media/full_icon_512.png') : util.getS3PreSignedUrl('Media/full_icon_108.png'),
                             backgroundImage: util.getS3PreSignedUrl('Media/lights_'+resolution+'.png'),
@@ -470,6 +533,7 @@ const FamososCumpleIntentHandler = {
         }
 
         return handlerInput.responseBuilder
+            .withStandardCard('Cumpleaños',mensajeHablado, util.getS3PreSignedUrl('Media/papers_480x480.png'))
             .speak(mensajeHablado)
             .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
@@ -483,11 +547,12 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const mensaje = handlerInput.t('HELP_MSG');
+        const mensajeHablado = handlerInput.t('HELP_MSG');
 
         return handlerInput.responseBuilder
-            .speak(mensaje)
-            .reprompt(mensaje)
+            //.withStandardCard('Cumpleaños',mensajeHablado, util.getS3PreSignedUrl('Media/papers_480x480.png'))
+            .speak(mensajeHablado)
+            .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
     }
 };
@@ -503,11 +568,13 @@ const CancelAndStopIntentHandler = {
         // Para decir su nombre
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         const nombre = sessionAttributes['nombre'] || '';
-        const mensaje = handlerInput.t('GOODBYE_MSG', {nombre: nombre});
+        const mensajeHablado = handlerInput.t('GOODBYE_MSG', {nombre: nombre});
 
-
+        // Preparamos la salida
         return handlerInput.responseBuilder
-            .speak(mensaje)
+            //.withStandardCard('Cumpleaños',mensajeHablado, util.getS3PreSignedUrl('Media/papers_480x480.png'))
+            .speak(mensajeHablado)
+            .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
     }
 };
