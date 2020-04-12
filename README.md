@@ -14,6 +14,7 @@ Es importante que gereneréis bien la clave de la API de Google Maps
 * 09/04/2020. Manejo de API System: Nombre de usuario y TimeZone del dispositivo
 * 10/04/2020. Manejo de API Reminders: Creación de un recordatorio que se disparará en el cumpleaños
 * 11/04/2020. Manejo de API REST y respuesta progresiva
+* 12/04/2020. Refactorización. Delegación de Intenciones.
 
 
 

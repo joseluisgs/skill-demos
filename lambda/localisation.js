@@ -36,7 +36,7 @@ module.exports = {
             API_ERROR_MSG: 'Lo siento, ha habido un problema de acceso a la API externa. Por favor inténtalo otra vez. ',
             PROGRESSIVE_MSG: 'Déjame ver quién cumple hoy {{nombre}}. ',
             CONJUNCTION_MSG: ' y ',
-            TURNING_YO_MSG: ' cumple {{contador}} año',
+            TURNING_YO_MSG: ' cumple {{contador}} años',
             TURNING_YO_MSG_plural: ' cumple {{contador}} años',
             CELEBRITY_BIRTHDAYS_MSG: 'En esta fecha cumplen años: ',
             ALSO_TODAY_MSG: 'También hoy cumplen: ',
