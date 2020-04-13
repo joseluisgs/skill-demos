@@ -116,6 +116,7 @@ module.exports = {
             if (conEdad && timezone && persona.date_of_birth.value) {
                 const edad = module.exports.convertirFechaNacimientoEnEdad(persona, timezone);
                  textoSalida += handlerInput.t('TURNING_YO_MSG', {contador: edad});
+                 persona.date_of_birth.value = handlerInput.t('LIST_YO_ABBREV_MSG', {count: edad});
             }
             // Juntamos más
             if (index === Object.keys(resultados).length - 2)
@@ -126,6 +127,7 @@ module.exports = {
 
         return textoSalida;
     },
+    
     
     // Convierte fechas de cumpleaños en años que tiene
     convertirFechaNacimientoEnEdad(persona, timezone) {

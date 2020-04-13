@@ -16,8 +16,7 @@ Es importante que gereneréis bien la clave de la API de Google Maps
 * 11/04/2020. Manejo de API REST y respuesta progresiva
 * 12/04/2020. Refactorización. Delegación de Intenciones.
 * 12/04/2020. APL, LaunchScreen y otras.
-
-
+* 13/04/2020. APL, ListScreen y otras.
 
 ## Acerca de
 José Luis González Sánchez: [@joseluisgonsan](https://twitter.com/joseluisgonsan). Abril de 2020.

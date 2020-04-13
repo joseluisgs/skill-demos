@@ -162,40 +162,19 @@ const DiasParaCumpleIntentHandler = {
             // Preparamos los mensajes
             
             // Si quedan días para el cumple
-            if(datosCumple.diasParaCumple>1){
-                mensajeHablado += handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: nombre, contador: datosCumple.diasParaCumple});
-            } else {
-                if (datosCumple.diasParaCumple===1) {
-                mensajeHablado += handlerInput.t('DAYS_LEFT_MSG', {nombre: nombre, contador: datosCumple.diasParaCumple});
-                }
-            }
-            
-            // Le decimos la edad 
-            if(datosCumple.edad>1) 
-                mensajeHablado += handlerInput.t('WILL_TURN_MSG_plural', {contador: datosCumple.edad + 1});
-            else
-                mensajeHablado += handlerInput.t('WILL_TURN_MSG', {contador: datosCumple.edad + 1});
-            
+            if(datosCumple.diasParaCumple>0){
+                mensajeHablado += handlerInput.t('DAYS_LEFT_MSG', {nombre: nombre, count: datosCumple.diasParaCumple});
+                mensajeHablado += handlerInput.t('WILL_TURN_MSG', {count: datosCumple.edad + 1});
+            } 
             // PAsamos el texto a la pantalla...
             textoPantalla = mensajeHablado;
             
             // Si es nuestro cumpleaños
             if (datosCumple.diasParaCumple===0) { //¡Es nuestro cumpleaños!
                 textoPantalla = handlerInput.t('FELICITACION_MSG', {nombre: nombre});
-                // Si edad es mayor que 1, plurar
-                if(datosCumple.edad>1) {
-                    mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
-                    mensajeHablado += handlerInput.t('NOW_TURN_MSG_plural', {contador: datosCumple.edad});
-                    textoPantalla += handlerInput.t('NOW_TURN_MSG_plural', {contador: datosCumple.edad});
-                }
-                else {
-                    mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
-                    mensajeHablado += handlerInput.t('NOW_TURN_MSG', {contador: datosCumple.edad});
-                    textoPantalla += handlerInput.t('NOW_TURN_MSG_plural', {contador: datosCumple.edad});
-                }
-                
-
-                
+                mensajeHablado = handlerInput.t('GREET_MSG', {nombre: nombre});
+                mensajeHablado += handlerInput.t('NOW_TURN_MSG', {count: datosCumple.edad});
+                 textoPantalla += handlerInput.t('NOW_TURN_MSG', {count: datosCumple.edad});
                 // Ahora vamos a concatenarle los cumpleaños importantes de hoy
                 const fechaActual = func.getFechaActual(timezone);
                 // obtenemos los cumpleaños acediendo a nuestra API, ver CUMPLEAÑOS DE FAMOSOS -INTENT
@@ -205,26 +184,12 @@ const DiasParaCumpleIntentHandler = {
                 const textoRespuesta = func.convertirCumplesResponse(handlerInput, respuesta, false);
                 mensajeHablado += textoRespuesta;
                 
-                
             }
             
             
             mensajeHablado += handlerInput.t('POST_SAY_HELP_MSG');
             
-
-            // Agregar tarjeta de inicio a la respuesta
-            // Si estás usando una habilidad alojada de Alexa, las imágenes a continuación caducarán
-            // y no se pudo mostrar en la tarjeta. Debes reemplazarlos con imágenes estáticas
-            
-            //let textoPantalla =  (datosCumple.diasParaCumple===1) ? handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}) : handlerInput.t('DAYS_LEFT_MSG_plural', {nombre: '', contador: sessionAttributes['diasParaCumple']});
-            
-            // Si es mi cumple de fondo pongo una tarta, si no el fondo normal
-            //    (datosCumple.diasParaCumple===0) ? util.getS3PreSignedUrl('Media/cake_480x480.png') : util.getS3PreSignedUrl('Media/papers_480x480.png'));
-            
-            
-            // experimento
-           
-        
+            // Pintamos la pantalla 
             if(util.supportsAPL(handlerInput)) {
                 const {Viewport} = handlerInput.requestEnvelope.context;
                 const resolution = Viewport.pixelWidth + 'x' + Viewport.pixelHeight;
@@ -252,16 +217,7 @@ const DiasParaCumpleIntentHandler = {
                     });
             
             }
-        }
-            
-            //handlerInput.responseBuilder.withStandardCard(
-                // Encabezado
-            //    handlerInput.t('LAUNCH_HEADER_MSG'), 
-                // Si es mi cumple, muestro  la edad, si no los días que quedan
-            //    textoPantalla,//(datosCumple.diasParaCumple===0) ? sessionAttributes['edad'] + 'años' : handlerInput.t('DAYS_LEFT_MSG', {nombre: '', contador: sessionAttributes['diasParaCumple']}),
-                // Si es mi cumple de fondo pongo una tarta, si no el fondo normal
-            //    (datosCumple.diasParaCumple===0) ? util.getS3PreSignedUrl('Media/cake_480x480.png') : util.getS3PreSignedUrl('Media/papers_480x480.png'));
-        else {
+        }else {
             mensajeHablado += handlerInput.t('MISSING_MSG');
             // unsamos delegación de intenciones para lanzar otro intent
             handlerInput.responseBuilder.addDelegateDirective({
@@ -496,8 +452,42 @@ const FamososCumpleIntentHandler = {
         }
         mensajeHablado += handlerInput.t('POST_CELEBRITIES_HELP_MSG');
 
-       // Add APL directiva para responder
-        if (util.supportsAPL(handlerInput) && textoRespuesta) { // si no hay texto de respuesta es que no hay nada que decir
+       // Add APL directiva para responder usando el documento lista
+       
+       if (util.supportsAPL(handlerInput) && textoRespuesta) { //no hay respuesta
+             mensajeHablado += handlerInput.t('POST_CELEBRITIES_APL_HELP_MSG');
+            // Para saber lka resolución
+            const {Viewport} = handlerInput.requestEnvelope.context;
+            const resolution = Viewport.pixelWidth + 'x' + Viewport.pixelHeight;
+            handlerInput.responseBuilder.addDirective({
+                type: 'Alexa.Presentation.APL.RenderDocument',
+                version: '1.1',
+                document: configuracion.APL.listDoc, // Cargamos la interfaz de listas
+                // Lo cogemos estos datos siguiendo la estructura de listSampleDataSource.json
+                datasources: {
+                    listData: {
+                        type: 'object',
+                        properties: {
+                            config: {
+                                backgroundImage: util.getS3PreSignedUrl('Media/lights_'+resolution+'.png'),
+                                title: handlerInput.t('LIST_HEADER_MSG'),
+                                skillIcon: util.getS3PreSignedUrl('Media/full_icon_108.png'),
+                                hintText: handlerInput.t('LIST_HINT_MSG')
+                            },
+                            list: {
+                                listItems: respuesta.results.bindings
+                            }
+                        },
+                        transformers: [{
+                            inputPath: 'config.hintText',
+                            transformer: 'textToHint'
+                        }]
+                    }
+                }
+            });
+            
+            /*
+            if (util.supportsAPL(handlerInput) && textoRespuesta) { // si no hay texto de respuesta es que no hay nada que decir
             const {Viewport} = handlerInput.requestEnvelope.context;
             const resolution = Viewport.pixelWidth + 'x' + Viewport.pixelHeight;
             handlerInput.responseBuilder.addDirective({
@@ -522,18 +512,47 @@ const FamososCumpleIntentHandler = {
                     }
                 }
             });
-
+            */
              // Agregar tarjeta de inicio a la respuesta
             // Si estás usando una habilidad alojada de Alexa, las imágenes a continuación caducarán
             // y no se pudo mostrar en la tarjeta. Debes reemplazarlos con imágenes estáticas
             handlerInput.responseBuilder.withStandardCard(
-                handlerInput.t('LAUNCH_HEADER_MSG'),
+                handlerInput.t('LIST_HEADER_MSG'),
                 mensajeHablado,
                 util.getS3PreSignedUrl('Media/lights_480x480.png'));
-        }
+                
+        // Si no tenemos respuesta....
+        } else {
+            mensajeHablado += handlerInput.t('POST_CELEBRITIES_HELP_MSG');
+        }  
+        
+        // En cualquier caso devolvemos la respuesta 
+        return handlerInput.responseBuilder
+            .speak(mensajeHablado)
+            .reprompt(handlerInput.t('REPROMPT_MSG'))
+            .getResponse();
+    }
+};
+
+// HANDLER DE DE EVENTO TOUCH
+const TouchIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'Alexa.Presentation.APL.UserEvent'; // Los datos que nos vienen del evento
+    },
+    handle(handlerInput) {
+        const {request} = handlerInput.requestEnvelope; // Datos de entrada
+        // Datos de la persona, es lo que nos llega
+        let persona = request.arguments[0];
+        // Test Simulator está enviando JSON mientras que el dispositivo enviará String
+        // La casteamos del JSON
+        try { persona = JSON.parse(persona); } catch (e) {}
+        console.log('Evento Touch argumentos: ' + JSON.stringify(persona));
+        // Construimos el mensaje de salida 
+        let mensajeHablado = handlerInput.t('LIST_PERSON_DETAIL_MSG', {person: persona}); // Es person porque fijate que enla cadena cogemos sus atributos
+
+        mensajeHablado += handlerInput.t('POST_TOUCH_HELP_MSG');
 
         return handlerInput.responseBuilder
-            .withStandardCard('Cumpleaños',mensajeHablado, util.getS3PreSignedUrl('Media/papers_480x480.png'))
             .speak(mensajeHablado)
             .reprompt(handlerInput.t('REPROMPT_MSG'))
             .getResponse();
@@ -655,6 +674,7 @@ module.exports = {
     DiasParaCumpleIntentHandler,
     RecordatorioCumpleIntentHandler,
     FamososCumpleIntentHandler,
+    TouchIntentHandler,
     HelpIntentHandler,
     CancelAndStopIntentHandler,
     FallbackIntentHandler,

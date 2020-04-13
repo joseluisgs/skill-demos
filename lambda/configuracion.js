@@ -13,6 +13,7 @@ module.exports = {
     
     // APL Interfaces, uno por cada fichero de recursos
     APL: {
-        launchDoc: require('./recursos/launchScreen.json')
+        launchDoc: require('./recursos/launchScreen.json'),
+        listDoc: require('./recursos/listScreen.json')
     }
 }
